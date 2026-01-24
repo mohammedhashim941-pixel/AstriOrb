@@ -436,60 +436,130 @@
 
 @media (max-width: 480px) {
   .pc-card {
-    width: 85vw;
-    max-width: 340px;
+    width: 95vw;
+    max-width: 480px;
     height: auto;
-    aspect-ratio: auto;
-    /* Vertical for mobile */
+    aspect-ratio: 1.8;
+    /* Maintain PC aspect ratio */
+    min-height: unset;
+    display: grid;
+    /* Revert to grid like PC */
+  }
+
+  .pc-inside {
+    position: absolute;
+    /* Revert to absolute for correct layering */
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .pc-split-layout {
-    flex-direction: column;
-    padding: 50px 20px;
-    text-align: center;
+    flex-direction: row;
+    /* Force Row */
+    padding: 16px 20px;
+    /* Scaled padding (approx 0.55x of 30px 40px) */
+    gap: 6px;
+    /* Reduced gap to fit separator */
+    text-align: left;
+    align-items: center;
   }
 
-  .pc-col-left,
-  .pc-col-right {
-    flex: initial;
-    width: 100%;
+  /* Left Column */
+  .pc-col-left {
+    flex: 0 0 35%;
+    /* Keep same proportion as PC (was 32%) */
+    min-width: unset;
+    padding-right: 0;
     align-items: center;
     text-align: center;
   }
 
   .pc-logo-container {
-    margin-bottom: 12px;
+    width: 50px;
+    height: 50px;
+    /* Scaled from 90px */
+    margin-bottom: 8px;
+  }
+
+  .pc-company-name {
+    font-size: 14px;
+    /* Scaled from 26px */
+    letter-spacing: 0.8px;
+  }
+
+  .pc-company-tagline {
+    font-size: 5px;
+    /* Scaled from 9px */
+    margin-top: 4px;
+    max-width: 100%;
+    line-height: 1.2;
   }
 
   .pc-separator {
-    width: 60%;
-    height: 1px;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
-    margin: 20px 0;
+    display: block;
+    width: 1px;
+    height: 60%;
+    /* Covers most of the height but fades at ends */
+    background: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.2) 80%,
+        rgba(255, 255, 255, 0) 100%);
+    margin: 0 4px;
+    /* Small margin to avoid taking up too much space */
+    align-self: center;
+    opacity: 0.8;
   }
 
+  /* Right Column */
   .pc-col-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
     padding-left: 0;
-    align-items: center;
+    gap: 22px;
+    /* Scaled from 40px - Fixed the cramping issue */
   }
 
   .pc-person-info {
-    margin-bottom: 20px;
+    margin-bottom: 0;
+    align-items: flex-start;
+    text-align: left;
+    gap: 5px;
   }
 
   .pc-person-name {
-    white-space: normal;
-    /* Allow wrapping */
-    font-size: 24px;
-    /* Slightly Adjust size */
+    font-size: 15px;
+    /* Scaled from 28px */
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+  }
+
+  .pc-person-role {
+    font-size: 6px;
+    /* Scaled from 10px */
+    margin-top: 3px;
+  }
+
+  .pc-contact-info {
+    gap: 6px;
+    /* Matched to screenshot */
+    align-items: flex-start;
   }
 
   .pc-contact-item {
-    justify-content: center;
-    /* Center contact items */
+    font-size: 8px;
+    /* Scaled from 14px */
+    padding: 6px 12px;
     width: 100%;
-    max-width: 280px;
-    /* Limit width so it doesn't look too stretched */
+    box-sizing: border-box;
+    max-width: 100%;
+    justify-content: flex-start;
+    border-radius: 25px;
   }
 
   .pc-contact-item:hover {
@@ -500,13 +570,12 @@
 
 /* Modal Styling */
 .pc-contact-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
-  cursor: pointer;
+  /* Inherit visual styles from .pc-contact-item */
   font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
   width: 100%;
-  justify-content: flex-start;
+  /* Ensure it takes full width if needed or matches flex behavior */
 }
 
 .pc-modal-overlay {

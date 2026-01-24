@@ -15,4 +15,7 @@ export default defineConfig({
     },
   },
   base: "/AstriOrb/",
+  server: {
+    host: true
+  }
 })
