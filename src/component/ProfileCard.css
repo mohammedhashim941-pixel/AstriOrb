@@ -438,13 +438,14 @@
   .pc-card {
     width: 85vw;
     max-width: 340px;
-    aspect-ratio: 0.65;
+    height: auto;
+    aspect-ratio: auto;
     /* Vertical for mobile */
   }
 
   .pc-split-layout {
     flex-direction: column;
-    padding: 30px 20px;
+    padding: 50px 20px;
     text-align: center;
   }
 
@@ -476,10 +477,19 @@
     margin-bottom: 20px;
   }
 
+  .pc-person-name {
+    white-space: normal;
+    /* Allow wrapping */
+    font-size: 24px;
+    /* Slightly Adjust size */
+  }
+
   .pc-contact-item {
     justify-content: center;
     /* Center contact items */
     width: 100%;
+    max-width: 280px;
+    /* Limit width so it doesn't look too stretched */
   }
 
   .pc-contact-item:hover {
