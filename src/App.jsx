@@ -1,4 +1,4 @@
-import { useState } from 'react'
+
 import ProfileCard from './component/ProfileCard'
 import PixelBlast from './components/PixelBlast'
 import logo from './assets/logo.png'
@@ -6,9 +6,7 @@ import { grain, shape } from './assets/textures'
 import './App.css'
 
 function App() {
-  const handleContact = () => {
-    window.location.href = "mailto:astriorbofficial@gmail.com";
-  };
+
 
   return (
     <div className="App">
@@ -37,20 +35,16 @@ function App() {
 
         <ProfileCard
           key="v2-star-pattern"
-          name="Mohammed Hashim"
-          title="Founder"
-          handle="astriorb"
-          status="Active"
+          name="MOHAMMED HASHIM"
+          title="MANAGING DIRECTOR"
           avatarUrl={logo}
           grainUrl={grain}
           iconUrl={shape}
-          showUserInfo={false}
           enableTilt={true}
           enableMobileTilt={false}
           behindGlowEnabled={true}
           behindGlowColor="#8b5cf6"
           innerGradient="linear-gradient(135deg, rgba(88, 28, 135, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%)"
-          onContactClick={handleContact}
         />
 
 

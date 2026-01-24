@@ -29,14 +29,8 @@ const ProfileCardComponent = ({
     enableTilt = true,
     enableMobileTilt = false,
     mobileTiltSensitivity = 5,
-    miniAvatarUrl,
     name = 'Javi A. Torres',
-    title = 'Software Engineer',
-    handle = 'javicodes',
-    status = 'Online',
-    contactText = 'Contact',
-    showUserInfo = true,
-    onContactClick
+    title = 'Software Engineer'
 }) => {
     const [showPhoneOptions, setShowPhoneOptions] = React.useState(false);
     const wrapRef = useRef(null);
@@ -303,10 +297,6 @@ const ProfileCardComponent = ({
         [iconUrl, grainUrl, innerGradient, behindGlowColor, behindGlowSize]
     );
 
-    const handleContactClick = useCallback(() => {
-        onContactClick?.();
-    }, [onContactClick]);
-
     const handlePhoneClick = (e) => {
         e.preventDefault();
         setShowPhoneOptions(true);
@@ -365,8 +355,8 @@ const ProfileCardComponent = ({
                             {/* Right Side: Details */}
                             <div className="pc-col-right">
                                 <div className="pc-person-info">
-                                    <h1 className="pc-person-name">MOHAMMED HASHIM</h1>
-                                    <p className="pc-person-role">MANAGING DIRECTOR</p>
+                                    <h1 className="pc-person-name">{name}</h1>
+                                    <p className="pc-person-role">{title}</p>
                                 </div>
 
                                 <div className="pc-contact-info">
