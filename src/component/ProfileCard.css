@@ -592,23 +592,27 @@
 }
 
 .pc-modal {
-  background: rgba(16, 18, 27, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  padding: 30px;
   border-radius: 20px;
-  width: 300px;
-  /* Fixed width for better layout */
+  width: 320px;
   max-width: 90%;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .pc-modal-title {
-  margin: 0 0 20px 0;
+  margin: 0 0 24px 0;
   color: #fff;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.9;
 }
 
 .pc-modal-actions {
@@ -620,24 +624,28 @@
 
 .pc-modal-btn {
   flex: 1;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   font-weight: 500;
+  font-size: 14px;
   cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  backdrop-filter: blur(4px);
 }
 
-.pc-modal-btn:first-child {
-  background: #34c759;
-  /* Green for Call */
-  color: white;
+.pc-modal-btn:first-child:hover {
+  background: rgba(52, 199, 89, 0.2);
+  border-color: #34c759;
+  transform: translateY(-2px);
 }
 
-.pc-modal-btn:last-child {
-  background: #25d366;
-  /* WhatsApp brand color */
-  color: white;
+.pc-modal-btn:last-child:hover {
+  background: rgba(37, 211, 102, 0.2);
+  border-color: #25d366;
+  transform: translateY(-2px);
 }
 
 .pc-modal-btn:hover {
@@ -647,18 +655,22 @@
 
 .pc-modal-close {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.6);
-  padding: 8px 16px;
-  border-radius: 8px;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 12px;
+  border-radius: 12px;
   cursor: pointer;
   width: 100%;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   transition: all 0.2s;
+  margin-top: 8px;
 }
 
 .pc-modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
   color: #fff;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 @keyframes fadeIn {
