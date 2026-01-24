@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohammed Hashim | Founder - AstriOrb</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Virtual Business Card of Mohammed Hashim, Founder of AstriOrb. Connect with us for innovative solutions.">
+    <meta name="keywords" content="AstriOrb, Mohammed Hashim, Founder, Business Card, Contact">
+    <meta name="author" content="Mohammed Hashim">
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mohammed Hashim | Founder - AstriOrb">
+    <meta property="og:description" content="Virtual Business Card of Mohammed Hashim, Founder of AstriOrb">
+    <meta property="og:image" content="assets/logo.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Main Card Container -->
+    <main class="card-container">
+        <div class="card" id="card">
+            <!-- Card Front -->
+            <div class="card-content">
+                <!-- Logo Section -->
+                <div class="logo-section">
+                    <img src="assets/logo.png" alt="AstriOrb Logo" class="logo">
+                </div>
+
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <h1 class="name">Mohammed Hashim</h1>
+                    <p class="title">Founder</p>
+                </div>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span class="divider-line"></span>
+                    <span class="divider-icon">✦</span>
+                    <span class="divider-line"></span>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="contact-section">
+                    <a href="mailto:astriorbofficial@gmail.com" class="contact-item">
+                        <div class="contact-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                            </svg>
+                        </div>
+                        <span class="contact-text">astriorbofficial@gmail.com</span>
+                    </a>
+
+                    <a href="tel:+918848953850" class="contact-item">
+                        <div class="contact-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </div>
+                        <span class="contact-text">+91 8848953850</span>
+                    </a>
+
+                    <a href="https://astriorb.com" target="_blank" rel="noopener noreferrer" class="contact-item">
+                        <div class="contact-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                                <path d="M2 12h20"/>
+                            </svg>
+                        </div>
+                        <span class="contact-text">astriorb.com</span>
+                    </a>
+                </div>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span class="divider-line"></span>
+                    <span class="divider-icon">✦</span>
+                    <span class="divider-line"></span>
+                </div>
+
+                <!-- Actions Section -->
+                <div class="actions-section">
+                    <div class="qr-container">
+                        <div id="qrcode" class="qr-code"></div>
+                        <p class="qr-label">Scan to Connect</p>
+                    </div>
+                    
+                    <button class="download-btn" id="downloadVcard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" x2="12" y1="15" y2="3"/>
+                        </svg>
+                        <span>Save Contact</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Glow Effect -->
+            <div class="card-glow"></div>
+        </div>
+    </main>
+
+    <!-- Print Section (Hidden on screen) -->
+    <div class="print-section" id="printSection">
+        <div class="print-card">
+            <div class="print-qr" id="printQrcode"></div>
+            <div class="print-info">
+                <h2>Mohammed Hashim</h2>
+                <p>Founder | AstriOrb</p>
+                <p>astriorb.com</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

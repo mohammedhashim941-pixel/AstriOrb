@@ -1,0 +1,565 @@
+/* ========================================
+   CSS Variables & Root Styles
+======================================== */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+    --bg-dark: #0a0a1a;
+    --bg-card: rgba(20, 20, 40, 0.7);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --border-glow: rgba(139, 92, 246, 0.3);
+    --accent-purple: #8b5cf6;
+    --accent-blue: #3b82f6;
+    --accent-pink: #ec4899;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(139, 92, 246, 0.25);
+}
+
+/* ========================================
+   Reset & Base Styles
+======================================== */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* ========================================
+   Animated Background
+======================================== */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse at bottom, #1a1a3e 0%, #0a0a1a 100%);
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: float 15s ease-in-out infinite;
+}
+
+.orb-1 {
+    width: 400px;
+    height: 400px;
+    background: var(--accent-purple);
+    top: -100px;
+    right: -100px;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 300px;
+    height: 300px;
+    background: var(--accent-blue);
+    bottom: -50px;
+    left: -50px;
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    width: 250px;
+    height: 250px;
+    background: var(--accent-pink);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -10s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(30px, -30px) scale(1.05);
+    }
+    50% {
+        transform: translate(-20px, 20px) scale(0.95);
+    }
+    75% {
+        transform: translate(-30px, -20px) scale(1.02);
+    }
+}
+
+/* Particles */
+.particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
+}
+
+/* ========================================
+   Card Container & Card
+======================================== */
+.card-container {
+    perspective: 1000px;
+    padding: 20px;
+}
+
+.card {
+    position: relative;
+    width: 380px;
+    max-width: 90vw;
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 40px 32px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px var(--glass-border),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: cardEntrance 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes cardEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) rotateX(10deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}
+
+.card:hover {
+    box-shadow: 
+        0 35px 60px -15px rgba(0, 0, 0, 0.5),
+        0 0 0 1px var(--border-glow),
+        0 0 40px var(--shadow-color),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+}
+
+.card-glow {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: var(--secondary-gradient);
+    border-radius: 26px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover .card-glow {
+    opacity: 0.3;
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.card-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================
+   Logo Section
+======================================== */
+.logo-section {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 20px var(--shadow-color));
+    animation: logoFloat 4s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* ========================================
+   Profile Section
+======================================== */
+.profile-section {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff 0%, #e0e0ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--accent-purple);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+/* ========================================
+   Divider
+======================================== */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+}
+
+.divider-icon {
+    color: var(--accent-purple);
+    font-size: 0.75rem;
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* ========================================
+   Contact Section
+======================================== */
+.contact-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.contact-item:hover::before {
+    left: 100%;
+}
+
+.contact-item:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--border-glow);
+    transform: translateX(8px);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+}
+
+.contact-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--secondary-gradient);
+    border-radius: 10px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.contact-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.contact-item:hover .contact-text {
+    color: var(--text-primary);
+}
+
+/* ========================================
+   Actions Section
+======================================== */
+.actions-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* QR Code */
+.qr-container {
+    text-align: center;
+}
+
+.qr-code {
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.qr-code:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+}
+
+.qr-label {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Download Button */
+.download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--secondary-gradient);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.download-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.download-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+}
+
+.download-btn:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   Print Section (Hidden on Screen)
+======================================== */
+.print-section {
+    display: none;
+}
+
+@media print {
+    body {
+        background: white;
+    }
+    
+    .background,
+    .card-container {
+        display: none !important;
+    }
+    
+    .print-section {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    
+    .print-card {
+        text-align: center;
+        padding: 40px;
+        border: 2px solid #333;
+        border-radius: 16px;
+    }
+    
+    .print-qr {
+        margin-bottom: 20px;
+    }
+    
+    .print-info h2 {
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .print-info p {
+        color: #666;
+        margin: 4px 0;
+    }
+}
+
+/* ========================================
+   Responsive Design
+======================================== */
+@media (max-width: 480px) {
+    .card {
+        padding: 32px 24px;
+        border-radius: 20px;
+    }
+    
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .name {
+        font-size: 1.5rem;
+    }
+    
+    .title {
+        font-size: 0.875rem;
+    }
+    
+    .contact-item {
+        padding: 12px 14px;
+    }
+    
+    .contact-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .contact-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   Accessibility
+======================================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus States */
+.contact-item:focus,
+.download-btn:focus {
+    outline: 2px solid var(--accent-purple);
+    outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+    background: var(--accent-purple);
+    color: white;
+}
