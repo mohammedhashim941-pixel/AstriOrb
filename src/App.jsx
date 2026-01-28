@@ -1,35 +1,53 @@
 
+import React, { Suspense } from 'react';
 import ProfileCard from './component/ProfileCard'
-import PixelBlast from './components/PixelBlast'
 import logo from './assets/logo.png'
 import { grain, shape } from './assets/textures'
 import './App.css'
+
+// Lazy load the heavy WebGL component for better initial load
+const PixelBlast = React.lazy(() => import('./components/PixelBlast'));
+
+// Simple loading fallback that matches the background
+const LoadingFallback = () => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#0f172a',
+    zIndex: 0
+  }} />
+);
 
 function App() {
 
 
   return (
     <div className="App">
-      <PixelBlast
-        variant="square"
-        pixelSize={4}
-        color="#B19EEF"
-        patternScale={2}
-        patternDensity={1}
-        pixelSizeJitter={0}
-        enableRipples={true}
-        rippleSpeed={0.4}
-        rippleThickness={0.12}
-        rippleIntensityScale={1.5}
-        liquid={false}
-        liquidStrength={0.12}
-        liquidRadius={1.2}
-        liquidWobbleSpeed={5}
-        speed={0.5}
-        edgeFade={0.25}
-        transparent={true}
-        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
-      />
+      <Suspense fallback={<LoadingFallback />}>
+        <PixelBlast
+          variant="square"
+          pixelSize={4}
+          color="#B19EEF"
+          patternScale={2}
+          patternDensity={1}
+          pixelSizeJitter={0}
+          enableRipples={true}
+          rippleSpeed={0.4}
+          rippleThickness={0.12}
+          rippleIntensityScale={1.5}
+          liquid={false}
+          liquidStrength={0.12}
+          liquidRadius={1.2}
+          liquidWobbleSpeed={5}
+          speed={0.5}
+          edgeFade={0.25}
+          transparent={true}
+          style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
+        />
+      </Suspense>
 
       <div className="card-container-flex">
 
@@ -41,7 +59,7 @@ function App() {
           grainUrl={grain}
           iconUrl={shape}
           enableTilt={true}
-          enableMobileTilt={false}
+          enableMobileTilt={true}
           behindGlowEnabled={true}
           behindGlowColor="#8b5cf6"
           innerGradient="linear-gradient(135deg, rgba(88, 28, 135, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%)"
@@ -54,3 +72,4 @@ function App() {
 }
 
 export default App
+

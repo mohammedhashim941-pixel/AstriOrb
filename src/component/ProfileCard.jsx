@@ -1,15 +1,22 @@
 
-import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import './ProfileCard.css';
 import ShinyText from './ShinyText';
 
 const DEFAULT_INNER_GRADIENT = 'linear-gradient(145deg,#60496e8c 0%,#71C4FF44 100%)';
 
+// Check if device is mobile
+const isMobileDevice = () => {
+    if (typeof navigator === 'undefined') return false;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768 && 'ontouchstart' in window);
+};
+
 const ANIMATION_CONFIG = {
     INITIAL_DURATION: 1200,
     INITIAL_X_OFFSET: 70,
     INITIAL_Y_OFFSET: 60,
-    DEVICE_BETA_OFFSET: 20,
+    DEVICE_BETA_OFFSET: 45, // Adjusted for more natural holding angle
     ENTER_TRANSITION_MS: 180
 };
 
@@ -28,11 +35,13 @@ const ProfileCardComponent = ({
     className = '',
     enableTilt = true,
     enableMobileTilt = false,
-    mobileTiltSensitivity = 5,
+    mobileTiltSensitivity = 3, // Reduced for smoother gyro movement
     name = 'Javi A. Torres',
     title = 'Software Engineer'
 }) => {
     const [showPhoneOptions, setShowPhoneOptions] = React.useState(false);
+    const [gyroActive, setGyroActive] = useState(false);
+    const [isMobile] = useState(() => isMobileDevice());
     const wrapRef = useRef(null);
     const shellRef = useRef(null);
 
@@ -214,6 +223,9 @@ const ProfileCardComponent = ({
 
             const centerX = shell.clientWidth / 2;
             const centerY = shell.clientHeight / 2;
+
+            // gamma: left-right tilt (-90 to 90)
+            // beta: front-back tilt (-180 to 180), with offset for natural holding position
             const x = clamp(centerX + gamma * mobileTiltSensitivity, 0, shell.clientWidth);
             const y = clamp(
                 centerY + (beta - ANIMATION_CONFIG.DEVICE_BETA_OFFSET) * mobileTiltSensitivity,
@@ -222,8 +234,14 @@ const ProfileCardComponent = ({
             );
 
             tiltEngine.setTarget(x, y);
+
+            // Activate the card when gyro starts working
+            if (!gyroActive) {
+                setGyroActive(true);
+                shell.classList.add('active');
+            }
         },
-        [tiltEngine, mobileTiltSensitivity]
+        [tiltEngine, mobileTiltSensitivity, gyroActive]
     );
 
     useEffect(() => {
@@ -243,8 +261,14 @@ const ProfileCardComponent = ({
 
         const handleClick = () => {
             if (!enableMobileTilt || location.protocol !== 'https:') return;
+            requestGyroPermission();
+        };
+
+        // Function to request gyroscope permission
+        const requestGyroPermission = () => {
             const anyMotion = window.DeviceMotionEvent;
             if (anyMotion && typeof anyMotion.requestPermission === 'function') {
+                // iOS 13+ requires explicit permission
                 anyMotion
                     .requestPermission()
                     .then(state => {
@@ -254,10 +278,22 @@ const ProfileCardComponent = ({
                     })
                     .catch(console.error);
             } else {
+                // Android and older iOS - just add the listener
                 window.addEventListener('deviceorientation', deviceOrientationHandler);
             }
         };
+
         shell.addEventListener('click', handleClick);
+
+        // Auto-activate gyro on mobile (for Android and non-permission-required devices)
+        if (enableMobileTilt && isMobile) {
+            const anyMotion = window.DeviceMotionEvent;
+            // Only auto-request if permission API doesn't exist (Android)
+            if (!(anyMotion && typeof anyMotion.requestPermission === 'function')) {
+                window.addEventListener('deviceorientation', deviceOrientationHandler);
+                shell.classList.add('active'); // Show active state immediately
+            }
+        }
 
         const initialX = (shell.clientWidth || 0) - ANIMATION_CONFIG.INITIAL_X_OFFSET;
         const initialY = ANIMATION_CONFIG.INITIAL_Y_OFFSET;

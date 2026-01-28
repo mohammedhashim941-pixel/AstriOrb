@@ -1,11 +1,19 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import * as THREE from 'three';
 import { EffectComposer, EffectPass, RenderPass, Effect } from 'postprocessing';
 import './PixelBlast.css';
 
-const createTouchTexture = () => {
-    const size = 64;
+// Mobile detection for performance optimization
+const isMobileDevice = () => {
+    if (typeof navigator === 'undefined') return false;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768);
+};
+
+const createTouchTexture = (isMobile = false) => {
+    // Use smaller texture on mobile for better performance
+    const size = isMobile ? 32 : 64;
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
@@ -148,6 +156,7 @@ uniform float uRippleSpeed;
 uniform float uRippleThickness;
 uniform float uRippleIntensity;
 uniform float uEdgeFade;
+uniform int   uIsMobile;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -169,7 +178,7 @@ float Bayer2(vec2 a) {
 #define Bayer4(a) (Bayer2(.5*(a))*0.25 + Bayer2(a))
 #define Bayer8(a) (Bayer4(.5*(a))*0.25 + Bayer2(a))
 
-#define FBM_OCTAVES     5
+// Dynamic FBM octaves - fewer on mobile for performance
 #define FBM_LACUNARITY  1.25
 #define FBM_GAIN        1.0
 
@@ -201,7 +210,10 @@ float fbm2(vec2 uv, float t){
   float amp = 1.0;
   float freq = 1.0;
   float sum = 1.0;
-  for (int i = 0; i < FBM_OCTAVES; ++i){
+  // Use 3 octaves on mobile, 5 on desktop for ~40% GPU savings
+  int octaves = uIsMobile == 1 ? 3 : 5;
+  for (int i = 0; i < 5; ++i){
+    if (i >= octaves) break;
     sum  += amp * vnoise(p * freq);
     freq *= FBM_LACUNARITY;
     amp  *= FBM_GAIN;
@@ -360,15 +372,17 @@ const PixelBlast = ({
                 threeRef.current = null;
             }
             const canvas = document.createElement('canvas');
+            const isMobile = isMobileDevice();
             const renderer = new THREE.WebGLRenderer({
                 canvas,
-                antialias,
+                antialias: isMobile ? false : antialias, // Disable antialiasing on mobile
                 alpha: true,
-                powerPreference: 'high-performance'
+                powerPreference: isMobile ? 'low-power' : 'high-performance'
             });
             renderer.domElement.style.width = '100%';
             renderer.domElement.style.height = '100%';
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            // Limit pixel ratio to 1 on mobile for significant GPU savings
+            renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2));
             container.appendChild(renderer.domElement);
             if (transparent) renderer.setClearAlpha(0);
             else renderer.setClearColor(0x000000, 1);
@@ -389,6 +403,7 @@ const PixelBlast = ({
                 uRippleSpeed: { value: rippleSpeed },
                 uRippleThickness: { value: rippleThickness },
                 uRippleIntensity: { value: rippleIntensityScale },
+                uIsMobile: { value: isMobile ? 1 : 0 },
                 uEdgeFade: { value: edgeFade }
             };
             const scene = new THREE.Scene();
@@ -431,7 +446,7 @@ const PixelBlast = ({
             let touch;
             let liquidEffect;
             if (liquid) {
-                touch = createTouchTexture();
+                touch = createTouchTexture(isMobile);
                 touch.radiusScale = liquidRadius;
                 composer = new EffectComposer(renderer);
                 const renderPass = new RenderPass(scene, camera);
