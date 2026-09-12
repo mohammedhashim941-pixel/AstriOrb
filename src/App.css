@@ -36,8 +36,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 22px;
   z-index: 20;
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
 
 
@@ -88,5 +90,18 @@ body {
 
   100% {
     transform: translate(0, 0);
+  }
+}
+
+@media (max-width: 640px) {
+  .App {
+    padding: 12px 0;
+    box-sizing: border-box;
+  }
+
+  .card-container-flex {
+    padding: 12px 12px 24px 12px;
+    gap: 16px;
+    width: 100%;
   }
 }

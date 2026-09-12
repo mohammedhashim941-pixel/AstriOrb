@@ -1,9 +1,12 @@
 
-import React, { Suspense } from 'react';
-import ProfileCard from './component/ProfileCard'
-import logo from './assets/logo.png'
-import { grain, shape } from './assets/textures'
-import './App.css'
+import React, { Suspense, useState, useCallback } from 'react';
+import ProfileCard from './component/ProfileCard';
+import ActionToolbar from './component/ActionToolbar';
+import QRCodeModal from './component/QRCodeModal';
+import Toast from './component/Toast';
+import logo from './assets/logo.svg';
+import { grain, shape } from './assets/textures';
+import './App.css';
 
 // Lazy load the heavy WebGL component for better initial load
 const PixelBlast = React.lazy(() => import('./components/PixelBlast'));
@@ -22,7 +25,21 @@ const LoadingFallback = () => (
 );
 
 function App() {
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [isFlipped, setIsFlipped] = useState(false);
 
+  const handleShowToast = useCallback((msg) => {
+    setToastMessage(msg);
+  }, []);
+
+  const handleCloseToast = useCallback(() => {
+    setToastMessage('');
+  }, []);
+
+  const handleToggleFlip = useCallback(() => {
+    setIsFlipped((prev) => !prev);
+  }, []);
 
   return (
     <div className="App">
@@ -50,7 +67,6 @@ function App() {
       </Suspense>
 
       <div className="card-container-flex">
-
         <ProfileCard
           key="v2-star-pattern"
           name="MOHAMMED HASHIM"
@@ -63,13 +79,32 @@ function App() {
           behindGlowEnabled={true}
           behindGlowColor="#8b5cf6"
           innerGradient="linear-gradient(135deg, rgba(88, 28, 135, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%)"
+          onShowToast={handleShowToast}
+          isFlipped={isFlipped}
+          onToggleFlip={handleToggleFlip}
         />
 
-
+        <ActionToolbar
+          onOpenQR={() => setIsQRModalOpen(true)}
+          onShowToast={handleShowToast}
+          onFlip={handleToggleFlip}
+          isFlipped={isFlipped}
+        />
       </div>
+
+      <QRCodeModal
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
+        onShowToast={handleShowToast}
+      />
+
+      <Toast
+        message={toastMessage}
+        onClose={handleCloseToast}
+      />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
 

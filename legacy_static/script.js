@@ -10,7 +10,7 @@ const CONFIG = {
     name: 'Mohammed Hashim',
     title: 'Founder',
     organization: 'AstriOrb',
-    email: 'astriorbofficial@gmail.com',
+    email: 'hashim@astriorb.com',
     phone: '+918848953850',
     phoneFormatted: '+91 8848953850',
     website: 'https://astriorb.com',

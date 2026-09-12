@@ -31,10 +31,10 @@
 }
 
 .pc-card-wrapper {
-  perspective: 500px;
+  perspective: 1200px;
   transform: translate3d(0, 0, 0.1px);
   position: relative;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 .pc-behind {
@@ -55,6 +55,38 @@
   --card-opacity: 1;
 }
 
+.pc-card-shell {
+  position: relative;
+  z-index: 1;
+  transform-style: preserve-3d;
+  transition: transform 1s ease;
+  transform: translateZ(0) rotateX(0deg) rotateY(0deg);
+}
+
+.pc-card-shell:hover,
+.pc-card-shell.active,
+.pc-card-wrapper:hover .pc-card-shell,
+.pc-card-wrapper.active .pc-card-shell {
+  transition: none;
+  transform: translateZ(0) rotateX(var(--rotate-y)) rotateY(var(--rotate-x));
+}
+
+.pc-card-shell.entering {
+  transition: transform 180ms ease-out;
+}
+
+.pc-card-flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
+
+.pc-card-flipper.is-flipped {
+  transform: rotateY(180deg);
+}
+
 .pc-card {
   width: 90vw;
   max-width: 650px;
@@ -65,29 +97,23 @@
   background-blend-mode: color-dodge, normal, normal, normal;
   animation: glow-bg 30s linear infinite;
   box-shadow: rgba(0, 0, 0, 0.8) calc((var(--pointer-from-left) * 10px) - 3px) calc((var(--pointer-from-top) * 20px) - 6px) 20px -5px;
-  transition: transform 1s ease;
-  transform: translateZ(0) rotateX(0deg) rotateY(0deg);
   background: rgba(16, 18, 27, 0.4);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
 
-.pc-card:hover,
-.pc-card.active {
-  transition: none;
-  transform: translateZ(0) rotateX(var(--rotate-y)) rotateY(var(--rotate-x));
+.pc-card-front {
+  transform: rotateY(0deg);
 }
 
-.pc-card-shell.entering .pc-card {
-  transition: transform 180ms ease-out;
-}
-
-.pc-card-shell {
-  position: relative;
-  z-index: 1;
+.pc-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
 }
 
 .pc-card * {
@@ -302,6 +328,22 @@
   text-transform: uppercase;
 }
 
+/* Separator Line between Left and Right Columns */
+.pc-separator {
+  display: block;
+  width: 1px;
+  height: 65%;
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.22) 20%,
+      rgba(255, 255, 255, 0.22) 80%,
+      rgba(255, 255, 255, 0) 100%);
+  margin: 0 4px;
+  align-self: center;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
 /* Right Column: Details */
 .pc-col-right {
   flex: 1;
@@ -311,15 +353,14 @@
   align-items: flex-start;
   text-align: left;
   padding-left: 0;
-  gap: 40px;
-  /* Big gap between name and contacts */
+  gap: 20px;
 }
 
 .pc-person-info {
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .pc-person-name {
@@ -347,13 +388,13 @@
   margin: 0;
   padding: 0;
   opacity: 0.8;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .pc-contact-info {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 9px;
 }
 
 .pc-contact-item {
@@ -362,10 +403,10 @@
   gap: 12px;
   color: #fff;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   transition: all 0.2s ease;
-  padding: 10px 24px;
+  padding: 7px 20px;
   border-radius: 50px;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(4px);
@@ -384,6 +425,18 @@
   opacity: 1;
 }
 
+.pc-contact-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: all 0.2s ease;
+}
+
+.pc-contact-item:hover .pc-contact-icon {
+  opacity: 1;
+  transform: scale(1.1);
+  color: #c4b5fd;
+}
+
 .pc-icon {
   font-size: 18px;
   display: flex;
@@ -393,179 +446,6 @@
   height: 24px;
   background: transparent;
   color: #fff;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .pc-card {
-    width: 90vw;
-    max-width: 480px;
-  }
-
-  .pc-split-layout {
-    padding: 20px;
-    gap: 15px;
-  }
-
-  .pc-logo-container {
-    width: 70px;
-    height: 70px;
-  }
-
-  .pc-company-name {
-    font-size: 20px;
-  }
-
-  .pc-company-tagline {
-    font-size: 9px;
-  }
-
-  .pc-person-name {
-    font-size: 22px;
-  }
-
-  .pc-person-role {
-    font-size: 9px;
-  }
-
-  .pc-contact-item {
-    font-size: 11px;
-    padding: 4px 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .pc-card {
-    width: 95vw;
-    max-width: 480px;
-    height: auto;
-    aspect-ratio: 1.8;
-    /* Maintain PC aspect ratio */
-    min-height: unset;
-    display: grid;
-    /* Revert to grid like PC */
-  }
-
-  .pc-inside {
-    position: absolute;
-    /* Revert to absolute for correct layering */
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .pc-split-layout {
-    flex-direction: row;
-    /* Force Row */
-    padding: 16px 20px;
-    /* Scaled padding (approx 0.55x of 30px 40px) */
-    gap: 6px;
-    /* Reduced gap to fit separator */
-    text-align: left;
-    align-items: center;
-  }
-
-  /* Left Column */
-  .pc-col-left {
-    flex: 0 0 35%;
-    /* Keep same proportion as PC (was 32%) */
-    min-width: unset;
-    padding-right: 0;
-    align-items: center;
-    text-align: center;
-  }
-
-  .pc-logo-container {
-    width: 50px;
-    height: 50px;
-    /* Scaled from 90px */
-    margin-bottom: 8px;
-  }
-
-  .pc-company-name {
-    font-size: 14px;
-    /* Scaled from 26px */
-    letter-spacing: 0.8px;
-  }
-
-  .pc-company-tagline {
-    font-size: 5px;
-    /* Scaled from 9px */
-    margin-top: 4px;
-    max-width: 100%;
-    line-height: 1.2;
-  }
-
-  .pc-separator {
-    display: block;
-    width: 1px;
-    height: 60%;
-    /* Covers most of the height but fades at ends */
-    background: linear-gradient(to bottom,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.2) 20%,
-        rgba(255, 255, 255, 0.2) 80%,
-        rgba(255, 255, 255, 0) 100%);
-    margin: 0 4px;
-    /* Small margin to avoid taking up too much space */
-    align-self: center;
-    opacity: 0.8;
-  }
-
-  /* Right Column */
-  .pc-col-right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    padding-left: 0;
-    gap: 22px;
-    /* Scaled from 40px - Fixed the cramping issue */
-  }
-
-  .pc-person-info {
-    margin-bottom: 0;
-    align-items: flex-start;
-    text-align: left;
-    gap: 5px;
-  }
-
-  .pc-person-name {
-    font-size: 15px;
-    /* Scaled from 28px */
-    white-space: nowrap;
-    letter-spacing: 0.3px;
-    line-height: 1.2;
-  }
-
-  .pc-person-role {
-    font-size: 6px;
-    /* Scaled from 10px */
-    margin-top: 3px;
-  }
-
-  .pc-contact-info {
-    gap: 6px;
-    /* Matched to screenshot */
-    align-items: flex-start;
-  }
-
-  .pc-contact-item {
-    font-size: 8px;
-    /* Scaled from 14px */
-    padding: 6px 12px;
-    width: 100%;
-    box-sizing: border-box;
-    max-width: 100%;
-    justify-content: flex-start;
-    border-radius: 25px;
-  }
-
-  .pc-contact-item:hover {
-    transform: none;
-    background: rgba(255, 255, 255, 0.05);
-  }
 }
 
 /* Modal Styling */
@@ -618,39 +498,45 @@
 .pc-modal-actions {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 20px;
 }
 
 .pc-modal-btn {
   flex: 1;
-  padding: 12px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: #fff;
   backdrop-filter: blur(4px);
+  white-space: nowrap;
 }
 
-.pc-modal-btn:first-child:hover {
-  background: rgba(52, 199, 89, 0.2);
-  border-color: #34c759;
+.pc-modal-btn-call:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: #3b82f6;
   transform: translateY(-2px);
 }
 
-.pc-modal-btn:last-child:hover {
-  background: rgba(37, 211, 102, 0.2);
+.pc-modal-btn-wa:hover {
+  background: rgba(37, 211, 102, 0.25);
   border-color: #25d366;
   transform: translateY(-2px);
 }
 
-.pc-modal-btn:hover {
+.pc-modal-btn-copy:hover {
+  background: rgba(168, 85, 247, 0.25);
+  border-color: #a855f7;
   transform: translateY(-2px);
-  filter: brightness(1.1);
 }
 
 .pc-modal-close {
@@ -716,5 +602,515 @@
 
   100% {
     background-position: 100% 100%;
+  }
+}
+
+/* ========================================
+   Back Side Layout
+   ======================================== */
+.pc-back-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 34px;
+  height: 100%;
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pc-back-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.pc-back-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pc-back-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(139, 92, 246, 0.4));
+}
+
+.pc-back-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.pc-back-brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.pc-back-brand-tagline {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.3px;
+}
+
+.pc-back-body {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 4px 0;
+}
+
+.pc-back-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.pc-back-mission-heading {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #c4b5fd;
+  text-transform: uppercase;
+}
+
+.pc-back-mission-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 520px;
+}
+
+.pc-back-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+}
+
+.pc-back-badge {
+  font-size: 10.5px;
+  padding: 3px 11px;
+  background: rgba(139, 92, 246, 0.16);
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  border-radius: 9999px;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.pc-back-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
+}
+
+.pc-back-site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #a78bfa;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+}
+
+.pc-back-site-link:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.pc-back-motto {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   Tablet / Medium Screen Adaptations (641px - 768px)
+   ======================================== */
+@media (max-width: 768px) and (min-width: 641px) {
+  .pc-card {
+    width: 92vw;
+    max-width: 580px;
+    aspect-ratio: 1.8;
+  }
+
+  .pc-split-layout {
+    padding: 24px 28px;
+    gap: 20px;
+  }
+
+  .pc-logo-container {
+    width: 75px;
+    height: 75px;
+  }
+
+  .pc-company-name {
+    font-size: 22px;
+  }
+
+  .pc-company-tagline {
+    font-size: 8.5px;
+  }
+
+  .pc-person-name {
+    font-size: 24px;
+  }
+
+  .pc-person-role {
+    font-size: 9.5px;
+  }
+
+  .pc-contact-item {
+    font-size: 12.5px;
+    padding: 8px 16px;
+  }
+}
+
+/* ========================================
+   Mobile Horizontal Landscape Card (<= 640px)
+   Matches PC horizontal look with zero clipping
+   ======================================== */
+@media (max-width: 640px) {
+  .pc-card-wrapper {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .pc-card-shell {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .pc-card {
+    width: 95vw;
+    max-width: 450px;
+    height: auto;
+    aspect-ratio: 1.64;
+    border-radius: 20px;
+    display: grid;
+    overflow: hidden;
+  }
+
+  .pc-card-front,
+  .pc-card-back {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+  }
+
+  .pc-inside {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* FRONT SIDE - HORIZONTAL SPLIT LIKE PC */
+  .pc-split-layout {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    gap: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Left Column: Branding */
+  .pc-col-left {
+    flex: 0 0 35%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: unset;
+    padding: 0;
+  }
+
+  .pc-logo-container {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 6px;
+  }
+
+  .pc-brand-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .pc-company-name {
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  .pc-company-tagline {
+    font-size: 6.5px;
+    letter-spacing: 0.6px;
+    color: rgba(255, 255, 255, 0.65);
+    margin-top: 3px;
+    max-width: 115px;
+    line-height: 1.25;
+  }
+
+  /* Vertical Separator */
+  .pc-separator {
+    display: block;
+    width: 1px;
+    height: 75%;
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(167, 139, 250, 0.35) 20%,
+        rgba(167, 139, 250, 0.35) 80%,
+        transparent 100%);
+    margin: 0 2px;
+    align-self: center;
+    flex-shrink: 0;
+  }
+
+  /* Right Column: Personal Identity & Contact Actions */
+  .pc-col-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 2px;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .pc-person-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 2px;
+    margin: 0;
+  }
+
+  .pc-person-name {
+    font-size: 15.5px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    line-height: 1.15;
+    white-space: nowrap;
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  .pc-person-role {
+    font-size: 7px;
+    letter-spacing: 1.2px;
+    font-weight: 600;
+    color: #c4b5fd;
+    margin-top: 1px;
+  }
+
+  .pc-contact-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: stretch;
+  }
+
+  .pc-contact-item {
+    font-size: 8.5px;
+    font-weight: 400;
+    padding: 4px 9px;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 9999px;
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .pc-contact-item span {
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pc-contact-icon {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    color: #c4b5fd;
+  }
+
+  /* BACK SIDE - COMPLETE HORIZONTAL LAYOUT WITHOUT CLIPPING */
+  .pc-back-layout {
+    padding: 12px 16px 10px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+
+  .pc-back-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .pc-back-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pc-back-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .pc-back-brand-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: #ffffff;
+  }
+
+  .pc-back-brand-tagline {
+    font-size: 7.5px;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 0.2px;
+  }
+
+  .pc-back-body {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 2px 0;
+  }
+
+  .pc-back-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .pc-back-mission-heading {
+    margin: 0;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #c4b5fd;
+    text-transform: uppercase;
+  }
+
+  .pc-back-mission-text {
+    margin: 0;
+    font-size: 8px;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 100%;
+  }
+
+  .pc-back-badges {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  .pc-back-badge {
+    font-size: 7px;
+    font-weight: 500;
+    padding: 2px 7px;
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(167, 139, 250, 0.32);
+    border-radius: 9999px;
+    color: #f1f5f9;
+    white-space: nowrap;
+  }
+
+  .pc-back-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 6px;
+  }
+
+  .pc-back-site-link {
+    font-size: 9px;
+    gap: 4px;
+    color: #a78bfa;
+    font-weight: 500;
+  }
+
+  .pc-back-motto {
+    font-size: 7.5px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.2px;
+  }
+}
+
+/* Ultra-Compact Mobile (< 360px width) */
+@media (max-width: 360px) {
+  .pc-card {
+    aspect-ratio: 1.58;
+  }
+
+  .pc-split-layout {
+    padding: 10px 12px;
+  }
+
+  .pc-logo-container {
+    width: 44px;
+    height: 44px;
+  }
+
+  .pc-company-name {
+    font-size: 14px;
+  }
+
+  .pc-person-name {
+    font-size: 14.5px;
+  }
+
+  .pc-contact-item {
+    font-size: 8px;
+    padding: 4px 8px;
+    min-height: 22px;
   }
 }
