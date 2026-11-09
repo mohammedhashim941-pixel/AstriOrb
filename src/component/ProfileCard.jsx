@@ -1,9 +1,10 @@
 
 import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
-import { Phone, Mail, Globe, MessageCircle, Copy, Briefcase } from 'lucide-react';
-import { triggerHaptic, copyTextToClipboard } from '../utils/vcard';
+import { Phone, Mail, Globe, MessageCircle, Briefcase, Linkedin } from 'lucide-react';
+import { COMPANY, PERSON, PRODUCTS } from '../data/card';
+import { triggerHaptic } from '../utils/vcard';
+import { track } from '../utils/analytics';
 import './ProfileCard.css';
-import ShinyText from './ShinyText';
 
 const DEFAULT_INNER_GRADIENT = 'linear-gradient(145deg,#60496e8c 0%,#71C4FF44 100%)';
 
@@ -27,9 +28,9 @@ const round = (v, precision = 3) => parseFloat(v.toFixed(precision));
 const adjust = (v, fMin, fMax, tMin, tMax) => round(tMin + ((tMax - tMin) * (v - fMin)) / (fMax - fMin));
 
 const ProfileCardComponent = ({
-    avatarUrl = '<Placeholder for avatar URL>',
-    iconUrl = '<Placeholder for icon URL>',
-    grainUrl = '<Placeholder for grain URL>',
+    avatarUrl,
+    iconUrl,
+    grainUrl,
     innerGradient,
     behindGlowEnabled = true,
     behindGlowColor,
@@ -38,18 +39,16 @@ const ProfileCardComponent = ({
     enableTilt = true,
     enableMobileTilt = false,
     mobileTiltSensitivity = 3, // Reduced for smoother gyro movement
-    name = 'Javi A. Torres',
-    title = 'Software Engineer',
-    onShowToast,
     isFlipped: controlledFlipped
 }) => {
     const [internalFlipped] = useState(false);
     const isFlipped = controlledFlipped !== undefined ? controlledFlipped : internalFlipped;
-    const [showPhoneOptions, setShowPhoneOptions] = React.useState(false);
-    const [gyroActive, setGyroActive] = useState(false);
     const [isMobile] = useState(() => isMobileDevice());
     const wrapRef = useRef(null);
     const shellRef = useRef(null);
+    // A ref, not state: changing state here would re-run the setup effect,
+    // removing the iOS motion listener and replaying the intro animation.
+    const gyroActiveRef = useRef(false);
 
     const enterTimerRef = useRef(null);
     const leaveRafRef = useRef(null);
@@ -115,7 +114,7 @@ const ProfileCardComponent = ({
 
             const stillFar = Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05;
 
-            if (stillFar || document.hasFocus()) {
+            if (stillFar) {
                 rafId = requestAnimationFrame(step);
             } else {
                 running = false;
@@ -242,12 +241,12 @@ const ProfileCardComponent = ({
             tiltEngine.setTarget(x, y);
 
             // Activate the card when gyro starts working
-            if (!gyroActive) {
-                setGyroActive(true);
+            if (!gyroActiveRef.current) {
+                gyroActiveRef.current = true;
                 shell.classList.add('active');
             }
         },
-        [tiltEngine, mobileTiltSensitivity, gyroActive]
+        [tiltEngine, mobileTiltSensitivity]
     );
 
     useEffect(() => {
@@ -340,32 +339,16 @@ const ProfileCardComponent = ({
         [iconUrl, grainUrl, innerGradient, behindGlowColor, behindGlowSize]
     );
 
-    const handlePhoneClick = (e) => {
-        e.preventDefault();
-        triggerHaptic(20);
-        setShowPhoneOptions(true);
-    };
+    const contactRows = [
+        { icon: Phone, href: `tel:${PERSON.phone}`, label: PERSON.phoneDisplay, ariaLabel: `Call ${PERSON.phoneDisplay}`, event: 'call_click' },
+        { icon: MessageCircle, href: PERSON.whatsapp, label: 'WhatsApp', external: true, event: 'whatsapp_click' },
+        { icon: Mail, href: `mailto:${PERSON.email}`, label: PERSON.email, ariaLabel: `Email ${PERSON.email}`, event: 'email_click' },
+        { icon: Globe, href: COMPANY.website, label: COMPANY.websiteDisplay, external: true },
+        { icon: Briefcase, href: PERSON.portfolio, label: 'Portfolio', external: true },
+        { icon: Linkedin, href: PERSON.linkedin, label: 'LinkedIn', external: true }
+    ];
 
-    const handleCallAction = () => {
-        triggerHaptic(20);
-        window.location.href = 'tel:+918848953850';
-        setShowPhoneOptions(false);
-    };
-
-    const handleWhatsAppAction = () => {
-        triggerHaptic(20);
-        window.open('https://wa.me/918848953850', '_blank');
-        setShowPhoneOptions(false);
-    };
-
-    const handleCopyPhoneAction = async () => {
-        triggerHaptic(15);
-        const ok = await copyTextToClipboard('+918848953850');
-        if (ok && onShowToast) {
-            onShowToast('Phone number copied to clipboard!');
-        }
-        setShowPhoneOptions(false);
-    };
+    const { street, city, region, postalCode, country } = COMPANY.address;
 
     return (
         <div ref={wrapRef} className={`pc-card-wrapper ${className}`.trim()} style={cardStyle}>
@@ -373,90 +356,48 @@ const ProfileCardComponent = ({
             <div ref={shellRef} className="pc-card-shell">
                 <div className={`pc-card-flipper ${isFlipped ? 'is-flipped' : ''}`}>
                     {/* FRONT SIDE */}
-                    <section className="pc-card pc-card-front">
+                    <section className="pc-card pc-card-front" inert={isFlipped}>
                         <div className="pc-inside">
                             <div className="pc-shine" />
                             <div className="pc-glare" />
 
                             <div className="pc-split-layout">
-                                {/* Left Side: Branding */}
                                 <div className="pc-col-left">
                                     <div className="pc-logo-container">
-                                        <img
-                                            src={avatarUrl}
-                                            alt="AstriOrb Logo"
-                                            className="pc-brand-logo"
-                                        />
+                                        <img src={avatarUrl} alt="AstriOrb logo" className="pc-brand-logo" />
                                     </div>
-                                    <ShinyText
-                                        text="AstriOrb"
-                                        disabled={false}
-                                        speed={3}
-                                        className="pc-company-name"
-                                        color="#e2e2e2"
-                                        shineColor="#ffffff"
-                                    />
-                                    <ShinyText
-                                        text="Where Ideas Orbit Into Reality"
-                                        disabled={false}
-                                        speed={3}
-                                        className="pc-company-tagline"
-                                        color="rgba(255, 255, 255, 0.6)"
-                                        shineColor="#ffffff"
-                                    />
+                                    <div className="pc-brand-text">
+                                        <span className="pc-company-name">{COMPANY.brand}</span>
+                                        <span className="pc-company-tagline">{COMPANY.tagline}</span>
+                                        <span className="pc-dpiit-badge">{COMPANY.recognition}</span>
+                                    </div>
                                 </div>
 
-                                {/* Separator Line */}
                                 <div className="pc-separator"></div>
 
-                                {/* Right Side: Details */}
                                 <div className="pc-col-right">
                                     <div className="pc-person-info">
-                                        <h1 className="pc-person-name">{name}</h1>
-                                        <p className="pc-person-role">{title}</p>
+                                        <h1 className="pc-person-name">{PERSON.fullName}</h1>
+                                        <p className="pc-person-role">{PERSON.title}</p>
                                     </div>
 
                                     <div className="pc-contact-info">
-                                        <button
-                                            className="pc-contact-item pc-contact-btn"
-                                            onClick={handlePhoneClick}
-                                            type="button"
-                                            aria-label="Phone and WhatsApp contact options"
-                                        >
-                                            <Phone size={14} className="pc-contact-icon" />
-                                            <span>+91 8848953850</span>
-                                        </button>
-                                        <a
-                                            href="mailto:hashim@astriorb.com"
-                                            className="pc-contact-item"
-                                            onClick={() => triggerHaptic(15)}
-                                            aria-label="Send email to hashim@astriorb.com"
-                                        >
-                                            <Mail size={14} className="pc-contact-icon" />
-                                            <span>hashim@astriorb.com</span>
-                                        </a>
-                                        <a
-                                            href="https://astriorb.com"
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="pc-contact-item"
-                                            onClick={() => triggerHaptic(15)}
-                                            aria-label="Visit AstriOrb website"
-                                        >
-                                            <Globe size={14} className="pc-contact-icon" />
-                                            <span>astriorb.com</span>
-                                        </a>
-                                        <a
-                                            href="https://hashim.astriorb.com"
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="pc-contact-item"
-                                            onClick={() => triggerHaptic(15)}
-                                            aria-label="Visit Mohammed Hashim's Portfolio"
-                                        >
-                                            <Briefcase size={14} className="pc-contact-icon" />
-                                            <span>hashim.astriorb.com</span>
-                                        </a>
+                                        {contactRows.map(({ icon, href, label, ariaLabel, external, event }) => (
+                                            <a
+                                                key={label}
+                                                href={href}
+                                                className="pc-contact-item"
+                                                aria-label={ariaLabel}
+                                                {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+                                                onClick={() => {
+                                                    triggerHaptic(15);
+                                                    if (event) track(event);
+                                                }}
+                                            >
+                                                {React.createElement(icon, { size: 15, className: 'pc-contact-icon', 'aria-hidden': true })}
+                                                <span>{label}</span>
+                                            </a>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -464,85 +405,67 @@ const ProfileCardComponent = ({
                     </section>
 
                     {/* BACK SIDE */}
-                    <section className="pc-card pc-card-back">
+                    <section className="pc-card pc-card-back" inert={!isFlipped}>
                         <div className="pc-inside">
                             <div className="pc-shine" />
                             <div className="pc-glare" />
 
                             <div className="pc-back-layout">
-                                <div className="pc-back-header">
-                                    <div className="pc-back-brand">
-                                        <img src={avatarUrl} alt="AstriOrb Logo" className="pc-back-logo" />
-                                        <div className="pc-back-brand-text">
-                                            <span className="pc-back-brand-name">AstriOrb</span>
-                                            <span className="pc-back-brand-tagline">Where Ideas Orbit Into Reality</span>
-                                        </div>
+                                <div className="pc-back-brand">
+                                    <img src={avatarUrl} alt="" className="pc-back-logo" />
+                                    <div className="pc-back-brand-text">
+                                        <span className="pc-back-brand-name">{COMPANY.brand}</span>
+                                        <span className="pc-back-brand-tagline">{COMPANY.tagline}</span>
                                     </div>
                                 </div>
 
-                                <div className="pc-back-body">
-                                    <div className="pc-back-details">
-                                        <h4 className="pc-back-mission-heading">MULTI-PRODUCT SOFTWARE &amp; SMART HARDWARE</h4>
-                                        <p className="pc-back-mission-text">
-                                            An independent product technology company from Kerala, India. Engineering platforms across finance, food tech, healthcare, productivity, and smart hardware.
-                                        </p>
-                                        <div className="pc-back-badges">
-                                            <span className="pc-back-badge">✦ FISCLOK</span>
-                                            <span className="pc-back-badge">✦ Tastory</span>
-                                            <span className="pc-back-badge">✦ DocCo</span>
-                                            <span className="pc-back-badge">✦ Continuum</span>
-                                            <span className="pc-back-badge">✦ Project ROW</span>
-                                        </div>
-                                    </div>
+                                <p className="pc-back-oneliner">{COMPANY.oneLiner}</p>
+
+                                <div className="pc-back-products">
+                                    <h2 className="pc-back-heading">Products</h2>
+                                    <ul className="pc-product-list">
+                                        {PRODUCTS.map((product) => (
+                                            <li key={product.name} className="pc-product">
+                                                <div className="pc-product-head">
+                                                    {product.href ? (
+                                                        <a className="pc-product-name pc-product-link" href={product.href} target="_blank" rel="noreferrer">
+                                                            {product.name}
+                                                        </a>
+                                                    ) : (
+                                                        <span className="pc-product-name">{product.name}</span>
+                                                    )}
+                                                    {product.statusHref ? (
+                                                        <a
+                                                            className={`pc-status pc-status-${product.status} pc-status-link`}
+                                                            href={product.statusHref}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                        >
+                                                            {product.statusLabel}
+                                                        </a>
+                                                    ) : (
+                                                        <span className={`pc-status pc-status-${product.status}`}>{product.statusLabel}</span>
+                                                    )}
+                                                </div>
+                                                <p className="pc-product-desc">{product.description}</p>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
 
                                 <div className="pc-back-footer">
-                                    <a
-                                        href="https://astriorb.com"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="pc-back-site-link"
-                                        onClick={() => triggerHaptic(15)}
-                                    >
-                                        <Globe size={13} />
-                                        <span>astriorb.com</span>
-                                    </a>
-                                    <span className="pc-back-motto">Kerala, India • AstriOrb Pvt. Ltd.</span>
+                                    <address className="pc-back-address">
+                                        {street}, {city}, {region} {postalCode}, {country}
+                                    </address>
+                                    <span className="pc-back-legal">
+                                        {COMPANY.shortLegalName} · {COMPANY.established}
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </section>
                 </div>
             </div>
-
-            {showPhoneOptions && (
-                <div className="pc-modal-overlay" onClick={() => setShowPhoneOptions(false)}>
-                    <div className="pc-modal" onClick={(e) => e.stopPropagation()}>
-                        <h3 className="pc-modal-title">Contact Options</h3>
-                        <div className="pc-modal-actions">
-                            <button className="pc-modal-btn pc-modal-btn-call" onClick={handleCallAction} type="button">
-                                <Phone size={15} />
-                                <span>Call</span>
-                            </button>
-                            <button className="pc-modal-btn pc-modal-btn-wa" onClick={handleWhatsAppAction} type="button">
-                                <MessageCircle size={15} />
-                                <span>WhatsApp</span>
-                            </button>
-                            <button className="pc-modal-btn pc-modal-btn-copy" onClick={handleCopyPhoneAction} type="button">
-                                <Copy size={15} />
-                                <span>Copy</span>
-                            </button>
-                        </div>
-                        <button
-                            className="pc-modal-close"
-                            onClick={() => setShowPhoneOptions(false)}
-                            type="button"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

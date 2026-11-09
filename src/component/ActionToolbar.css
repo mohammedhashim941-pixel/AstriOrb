@@ -11,35 +11,39 @@
 .pc-toolbar {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(18, 20, 36, 0.55);
+  gap: 8px;
+  background: rgba(10, 26, 27, 0.55);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(139, 92, 246, 0.15);
-  padding: 8px 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(var(--accent-rgb), 0.12);
+  padding: 8px 10px;
   border-radius: 9999px;
   transition: all 0.3s ease;
 }
 
 .pc-toolbar:hover {
-  border-color: rgba(167, 139, 250, 0.35);
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), 0 0 25px rgba(139, 92, 246, 0.25);
+  border-color: rgba(var(--accent-rgb), 0.35);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), 0 0 25px rgba(var(--accent-rgb), 0.2);
 }
 
 .pc-toolbar-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px 15px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
-  color: #e2e8f0;
+  color: #eeeeee;
   font-family: inherit;
   font-size: 13.5px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  text-decoration: none;
   cursor: pointer;
   transition: all 0.22s ease;
   white-space: nowrap;
@@ -56,87 +60,93 @@
   transform: translateY(0);
 }
 
-/* Featured 'Save Contact' Button */
-.pc-toolbar-primary {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(59, 130, 246, 0.35));
-  border: 1px solid rgba(167, 139, 250, 0.4);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);
+/* Save Contact leads on larger screens. */
+.pc-toolbar-save {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-color);
+  box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.25);
 }
 
-.pc-toolbar-primary:hover {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.65), rgba(59, 130, 246, 0.55));
-  border-color: rgba(196, 181, 253, 0.6);
-  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+.pc-toolbar-save:hover {
+  background: #f5a32e;
+  border-color: #f5a32e;
+  color: var(--bg-color);
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.4);
 }
 
 .pc-toolbar-icon {
   flex-shrink: 0;
 }
 
-@media (max-width: 640px) {
-  .pc-toolbar-container {
-    width: 100%;
-    margin-top: 14px;
-    padding: 0 4px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-  }
-
+@media (max-width: 768px) {
   .pc-toolbar {
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
     gap: 6px;
     padding: 6px 8px;
-    width: auto;
-    max-width: 96vw;
-    box-sizing: border-box;
-    border-radius: 9999px;
   }
 
   .pc-toolbar-btn {
-    padding: 7px 10px;
-    font-size: 11px;
-    gap: 5px;
-    border-radius: 9999px;
-    white-space: nowrap;
-  }
-
-  .pc-toolbar-primary {
-    padding: 7px 12px;
-    font-size: 11px;
-    border-radius: 9999px;
-  }
-
-  .pc-toolbar-icon {
-    width: 14px;
-    height: 14px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    gap: 6px;
   }
 }
 
-@media (max-width: 360px) {
+/* Phones: fixed bottom bar with WhatsApp as the main action. */
+@media (max-width: 640px) {
+  .pc-toolbar-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
   .pc-toolbar {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 4px;
-    padding: 4px 6px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    border-width: 1px 0 0;
+    border-radius: 18px 18px 0 0;
+    background: rgba(10, 26, 27, 0.94);
   }
 
   .pc-toolbar-btn {
-    padding: 6px 8px;
-    font-size: 10px;
-    gap: 4px;
+    flex-direction: column;
+    gap: 3px;
+    min-height: 52px;
+    padding: 5px 2px;
+    border-radius: 12px;
+    font-size: 11px;
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
   }
 
-  .pc-toolbar-primary {
-    padding: 6px 10px;
-    font-size: 10px;
+  .pc-toolbar-save {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #eeeeee;
+    box-shadow: none;
   }
 
-  .pc-toolbar-icon {
-    width: 12px;
-    height: 12px;
+  .pc-toolbar-save:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: none;
+  }
+
+  .pc-toolbar-whatsapp {
+    background: #0f7a41;
+    border-color: #25d366;
+    color: #ffffff;
+  }
+
+  .pc-toolbar-whatsapp:hover {
+    background: #0c6636;
+    border-color: #25d366;
   }
 }

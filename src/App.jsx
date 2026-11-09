@@ -1,110 +1,125 @@
-
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import ProfileCard from './component/ProfileCard';
 import ActionToolbar from './component/ActionToolbar';
-import QRCodeModal from './component/QRCodeModal';
 import Toast from './component/Toast';
+import ErrorBoundary from './component/ErrorBoundary';
+import { usePrefersReducedMotion } from './utils/usePrefersReducedMotion';
+import { preloadVCardPhoto } from './utils/vcard';
+import { initAnalytics } from './utils/analytics';
 import logo from './assets/logo.svg';
 import { grain, shape } from './assets/textures';
 import './App.css';
 
-// Lazy load the heavy WebGL component for better initial load
 const PixelBlast = React.lazy(() => import('./components/PixelBlast'));
 
-// Simple loading fallback that matches the background
-const LoadingFallback = () => (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#0f172a',
-    zIndex: 0
-  }} />
-);
+const loadQRCodeModal = () => import('./component/QRCodeModal');
+const QRCodeModal = React.lazy(loadQRCodeModal);
+
+// The animated dots start after the card is usable, so setting up WebGL
+// can't block someone tapping Save or WhatsApp on a slower phone.
+const BACKGROUND_DELAY_MS = 3000;
+
+const whenIdle = (callback) => {
+  if ('requestIdleCallback' in window) window.requestIdleCallback(callback, { timeout: 2000 });
+  else setTimeout(callback, 300);
+};
 
 function App() {
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toast, setToast] = useState({ message: '', type: 'success' });
   const [isFlipped, setIsFlipped] = useState(false);
+  const [backgroundReady, setBackgroundReady] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
 
-  const handleShowToast = useCallback((msg) => {
-    setToastMessage(msg);
+  // The card paints first; everything optional loads when the browser is free.
+  useEffect(() => {
+    whenIdle(() => {
+      loadQRCodeModal().catch(() => {});
+      preloadVCardPhoto();
+      initAnalytics();
+    });
+    const timer = setTimeout(() => setBackgroundReady(true), BACKGROUND_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleShowToast = useCallback((message, type = 'success') => {
+    setToast({ message, type });
   }, []);
 
   const handleCloseToast = useCallback(() => {
-    setToastMessage('');
+    setToast((current) => ({ ...current, message: '' }));
   }, []);
 
   const handleToggleFlip = useCallback(() => {
     setIsFlipped((prev) => !prev);
   }, []);
 
+  const handleOpenQR = useCallback(() => {
+    setIsQRModalOpen(true);
+  }, []);
+
+  const handleCloseQR = useCallback(() => {
+    setIsQRModalOpen(false);
+  }, []);
+
   return (
     <div className="App">
-      <Suspense fallback={<LoadingFallback />}>
-        <PixelBlast
-          variant="square"
-          pixelSize={4}
-          color="#B19EEF"
-          patternScale={2}
-          patternDensity={1}
-          pixelSizeJitter={0}
-          enableRipples={true}
-          rippleSpeed={0.4}
-          rippleThickness={0.12}
-          rippleIntensityScale={1.5}
-          liquid={false}
-          liquidStrength={0.12}
-          liquidRadius={1.2}
-          liquidWobbleSpeed={5}
-          speed={0.5}
-          edgeFade={0.25}
-          transparent={true}
-          style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
-        />
-      </Suspense>
+      {backgroundReady && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <PixelBlast
+              variant="square"
+              pixelSize={4}
+              color="#8A5A16"
+              patternScale={2}
+              patternDensity={1}
+              pixelSizeJitter={0}
+              enableRipples={!reducedMotion}
+              rippleSpeed={0.4}
+              rippleThickness={0.12}
+              rippleIntensityScale={1.5}
+              speed={reducedMotion ? 0 : 0.5}
+              edgeFade={0.25}
+              transparent={true}
+              style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
 
-      <div className="card-container-flex">
+      <main className="card-container-flex">
         <ProfileCard
           key="v2-star-pattern"
-          name="MOHAMMED HASHIM"
-          title="MANAGING DIRECTOR"
           avatarUrl={logo}
           grainUrl={grain}
           iconUrl={shape}
-          enableTilt={true}
-          enableMobileTilt={true}
+          enableTilt={!reducedMotion}
+          enableMobileTilt={!reducedMotion}
           behindGlowEnabled={true}
-          behindGlowColor="#8b5cf6"
-          innerGradient="linear-gradient(135deg, rgba(88, 28, 135, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%)"
-          onShowToast={handleShowToast}
+          behindGlowColor="rgba(234, 146, 22, 0.45)"
+          innerGradient="linear-gradient(135deg, rgba(234, 146, 22, 0.12) 0%, rgba(29, 44, 47, 0.6) 45%, rgba(7, 22, 22, 0.85) 100%)"
           isFlipped={isFlipped}
-          onToggleFlip={handleToggleFlip}
         />
 
         <ActionToolbar
-          onOpenQR={() => setIsQRModalOpen(true)}
+          onOpenQR={handleOpenQR}
           onShowToast={handleShowToast}
           onFlip={handleToggleFlip}
           isFlipped={isFlipped}
         />
-      </div>
+      </main>
 
-      <QRCodeModal
-        isOpen={isQRModalOpen}
-        onClose={() => setIsQRModalOpen(false)}
-        onShowToast={handleShowToast}
-      />
+      {isQRModalOpen && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <QRCodeModal isOpen onClose={handleCloseQR} onShowToast={handleShowToast} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
 
-      <Toast
-        message={toastMessage}
-        onClose={handleCloseToast}
-      />
+      <Toast message={toast.message} type={toast.type} onClose={handleCloseToast} />
     </div>
   );
 }
 
 export default App;
-

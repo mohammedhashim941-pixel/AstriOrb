@@ -1,64 +1,83 @@
-/**
- * Virtual Business Card - Contact Data & Utilities
- */
+import { CARD_URL, COMPANY, PERSON } from '../data/card';
 
-export const CONTACT_INFO = {
-  fullName: 'Mohammed Hashim',
-  firstName: 'Mohammed',
-  lastName: 'Hashim',
-  organization: 'AstriOrb Pvt. Ltd.',
-  title: 'Managing Director',
-  phone: '+918848953850',
-  phoneDisplay: '+91 8848953850',
-  email: 'hashim@astriorb.com',
-  website: 'https://astriorb.com',
-  websiteDisplay: 'astriorb.com',
-  portfolio: 'https://hashim.astriorb.com',
-  portfolioDisplay: 'hashim.astriorb.com',
-  tagline: 'Multi-Product Software & Smart Hardware House. Where Ideas Orbit Into Reality.',
-  social: {
-    whatsapp: 'https://wa.me/918848953850',
-    website: 'https://astriorb.com',
-    portfolio: 'https://hashim.astriorb.com'
-  }
+const VCARD_FILENAME = 'Mohammed-Hashim-AstriOrb.vcf';
+
+/** Escapes characters that are structural in vCard text values (RFC 2426). */
+const escapeValue = (value) =>
+  value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+
+/** Folds long lines: continuation lines start with a single space. */
+const foldLine = (line, width = 72) => {
+  if (line.length <= width) return line;
+  const parts = [];
+  for (let i = 0; i < line.length; i += width) parts.push(line.slice(i, i + width));
+  return parts.join('\r\n ');
 };
 
-/**
- * Generates a vCard 3.0 standard text string
- */
-export function generateVCard(info = CONTACT_INFO) {
+/** Generates the vCard 3.0 text. Pass base64 PNG data to embed a contact photo. */
+export function generateVCard(photoBase64) {
+  const { street, city, region, postalCode, country } = COMPANY.address;
+  const address = ['', '', street, city, region, postalCode, country].map(escapeValue).join(';');
+
   return [
     'BEGIN:VCARD',
     'VERSION:3.0',
-    `FN:${info.fullName}`,
-    `N:${info.lastName};${info.firstName};;;`,
-    `ORG:${info.organization}`,
-    `TITLE:${info.title}`,
-    `TEL;TYPE=CELL,VOICE:${info.phone}`,
-    `EMAIL;TYPE=WORK,INTERNET:${info.email}`,
-    `URL;TYPE=WORK:${info.website}`,
-    `URL;TYPE=PORTFOLIO:${info.portfolio}`,
-    `NOTE:${info.tagline} • Portfolio: ${info.portfolioDisplay}`,
+    `N:${escapeValue(PERSON.lastName)};${escapeValue(PERSON.firstName)};;;`,
+    `FN:${escapeValue(PERSON.fullName)}`,
+    `ORG:${escapeValue(COMPANY.legalName)}`,
+    `TITLE:${escapeValue(PERSON.title)}`,
+    `TEL;TYPE=CELL,VOICE:${PERSON.phone}`,
+    `EMAIL;TYPE=WORK:${PERSON.email}`,
+    `URL;TYPE=WORK:${COMPANY.website}`,
+    `URL:${PERSON.portfolio}`,
+    `URL:${PERSON.linkedin}`,
+    `ADR;TYPE=WORK:${address}`,
+    `NOTE:${COMPANY.brand} — ${COMPANY.tagline}. Card: ${CARD_URL}`,
+    ...(photoBase64 ? [`PHOTO;ENCODING=b;TYPE=PNG:${photoBase64}`] : []),
     'END:VCARD'
-  ].join('\r\n');
+  ]
+    .map((line) => foldLine(line))
+    .join('\r\n') + '\r\n';
 }
 
-/**
- * Triggers instant download of the .vcf contact card
- */
-export function downloadVCard(info = CONTACT_INFO) {
-  const vcardText = generateVCard(info);
-  const blob = new Blob([vcardText], { type: 'text/vcard;charset=utf-8' });
+let photoPromise;
+
+/** Fetches the contact photo ahead of time so saving stays instant. */
+export function preloadVCardPhoto() {
+  photoPromise ??= fetch('/contact-photo.png')
+    .then((response) => {
+      if (!response.ok) throw new Error('Contact photo unavailable');
+      return response.arrayBuffer();
+    })
+    .then((buffer) => {
+      let binary = '';
+      new Uint8Array(buffer).forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+      return btoa(binary);
+    })
+    .catch(() => {
+      photoPromise = undefined;
+      return null;
+    });
+  return photoPromise;
+}
+
+/** Downloads the .vcf contact card. */
+export async function downloadVCard() {
+  const photo = await preloadVCardPhoto();
+  const blob = new Blob([generateVCard(photo)], { type: 'text/vcard;charset=utf-8' });
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${info.fullName.replace(/\s+/g, '_')}_AstriOrb.vcf`;
+  link.download = VCARD_FILENAME;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 
-  URL.revokeObjectURL(url);
+  // Revoking straight away can cancel the download on some mobile browsers.
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
 /**
@@ -74,8 +93,28 @@ export function triggerHaptic(duration = 15) {
   }
 }
 
+function legacyCopy(text) {
+  const previouslyFocused = document.activeElement;
+  const textArea = document.createElement('textarea');
+  try {
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    return document.execCommand('copy');
+  } catch {
+    return false;
+  } finally {
+    textArea.remove();
+    previouslyFocused?.focus?.();
+  }
+}
+
 /**
- * Copies text to clipboard safely
+ * Copies text to clipboard, falling back for older browsers and in-app webviews
+ * where the Clipboard API is missing or blocked. Returns whether it succeeded.
  */
 export async function copyTextToClipboard(text) {
   try {
@@ -84,21 +123,7 @@ export async function copyTextToClipboard(text) {
       return true;
     }
   } catch {
-    // Fallback for older browsers / webviews
-    try {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return successful;
-    } catch {
-      return false;
-    }
+    // Blocked or denied: try the legacy path below.
   }
-  return false;
+  return legacyCopy(text);
 }

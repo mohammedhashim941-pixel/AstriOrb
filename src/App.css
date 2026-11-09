@@ -3,7 +3,11 @@
   line-height: 1.5;
   font-weight: 400;
 
-  --bg-color: #0f172a;
+  --bg-color: #071616;
+  --accent: #ea9216;
+  --accent-rgb: 234, 146, 22;
+  --mint: #34d399;
+  --mint-rgb: 52, 211, 153;
 }
 
 body {
@@ -44,52 +48,37 @@ body {
 
 
 
-/* Background FX */
-.background-orbs {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
+.pixel-blast-container {
+  animation: background-fade-in 1s ease-out;
 }
 
-.orb {
-  position: absolute;
-  filter: blur(90px);
-  opacity: 0.4;
-  border-radius: 50%;
-}
-
-.orb-1 {
-  width: 300px;
-  height: 300px;
-  background: #7c3aed;
-  /* Violet */
-  top: 10%;
-  left: 20%;
-  animation: float 10s infinite ease-in-out;
-}
-
-.orb-2 {
-  width: 400px;
-  height: 400px;
-  background: #3b82f6;
-  /* Blue */
-  bottom: 10%;
-  right: 10%;
-  animation: float 14s infinite ease-in-out reverse;
-}
-
-@keyframes float {
-  0% {
-    transform: translate(0, 0);
+@keyframes background-fade-in {
+  from {
+    opacity: 0;
   }
 
-  50% {
-    transform: translate(30px, 40px);
+  to {
+    opacity: 1;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 
-  100% {
-    transform: translate(0, 0);
+  .pc-card-shell {
+    transform: none !important;
   }
 }
 
@@ -99,8 +88,9 @@ body {
     box-sizing: border-box;
   }
 
+  /* Bottom padding keeps the card clear of the fixed action bar. */
   .card-container-flex {
-    padding: 12px 12px 24px 12px;
+    padding: 12px 8px calc(92px + env(safe-area-inset-bottom));
     gap: 16px;
     width: 100%;
   }

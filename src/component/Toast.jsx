@@ -11,18 +11,19 @@ const Toast = ({ message, type = 'success', onClose }) => {
     return () => clearTimeout(timer);
   }, [message, onClose]);
 
-  if (!message) return null;
-
+  // The live region stays mounted so screen readers announce new messages.
   return (
-    <div className="vcard-toast-container">
-      <div className={`vcard-toast vcard-toast-${type}`}>
-        {type === 'success' ? (
-          <CheckCircle2 size={18} className="vcard-toast-icon" />
-        ) : (
-          <Info size={18} className="vcard-toast-icon" />
-        )}
-        <span className="vcard-toast-msg">{message}</span>
-      </div>
+    <div className="vcard-toast-container" role="status" aria-live="polite" aria-atomic="true">
+      {message && (
+        <div className={`vcard-toast vcard-toast-${type}`}>
+          {type === 'success' ? (
+            <CheckCircle2 size={18} className="vcard-toast-icon" aria-hidden="true" />
+          ) : (
+            <Info size={18} className="vcard-toast-icon" aria-hidden="true" />
+          )}
+          <span className="vcard-toast-msg">{message}</span>
+        </div>
+      )}
     </div>
   );
 };
